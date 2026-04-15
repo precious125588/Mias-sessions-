@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Mias MDX — Session Generator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#0a0a0f;--surface:#12121a;--surface-hover:#1a1a28;--border:rgba(255,255,255,0.06);--border-focus:rgba(0,200,150,0.5);--text:#e8e8ef;--text-muted:rgba(255,255,255,0.45);--accent:#00c896;--accent-glow:rgba(0,200,150,0.15);--gradient-1:linear-gradient(135deg,#00c896 0%,#00b4d8 100%);--radius:16px}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+    body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 20%,rgba(0,200,150,0.04) 0%,transparent 50%),radial-gradient(circle at 70% 80%,rgba(0,180,216,0.03) 0%,transparent 50%);pointer-events:none;z-index:0}
+    .container{width:100%;max-width:440px;background:var(--surface);border-radius:var(--radius);padding:32px 28px;border:1px solid var(--border);position:relative;z-index:1;box-shadow:0 0 80px rgba(0,200,150,0.03),0 20px 60px rgba(0,0,0,0.4)}
+    .header{text-align:center;margin-bottom:28px}
+    .logo-wrap{width:80px;height:80px;margin:0 auto 18px;position:relative}
+    .logo-ring{position:absolute;inset:-4px;border-radius:50%;background:var(--gradient-1);opacity:0.6;animation:pulse-ring 3s ease-in-out infinite}
+    .logo{width:80px;height:80px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;z-index:1;color:var(--accent)}
+    @keyframes pulse-ring{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0.7;transform:scale(1.05)}}
+    .title{font-size:26px;font-weight:700;background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .subtitle{font-size:13px;color:var(--text-muted);margin-top:6px;letter-spacing:2px;text-transform:uppercase}
+    .status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;background:var(--accent-glow);color:var(--accent);margin-bottom:20px;letter-spacing:0.5px;text-transform:uppercase}
+    .status-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:blink 2s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+    .tabs{display:flex;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:24px;border:1px solid var(--border)}
+    .tab{flex:1;padding:11px 8px;text-align:center;cursor:pointer;border-radius:9px;font-size:12px;font-weight:600;color:var(--text-muted);display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.3s}
+    .tab.active{background:var(--accent);color:#000;box-shadow:0 4px 20px rgba(0,200,150,0.25)}
+    .tab:hover:not(.active){color:var(--text);background:var(--surface-hover)}
+    .tab-content{display:none}.tab-content.active{display:block}
+    .input-label{display:block;margin-bottom:8px;font-weight:500;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+    .input-field{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);font-size:16px;font-family:'JetBrains Mono',monospace;font-weight:500;transition:all 0.3s}
+    .input-field::placeholder{color:rgba(255,255,255,0.2)}
+    .input-field:focus{outline:none;border-color:var(--border-focus);box-shadow:0 0 0 3px var(--accent-glow)}
+    textarea.input-field{min-height:100px;resize:vertical;font-size:12px}
+    .btn{width:100%;padding:14px;background:var(--gradient-1);border:none;border-radius:12px;color:#000;font-size:15px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all 0.3s;margin-top:16px;letter-spacing:0.5px;text-transform:uppercase}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,200,150,0.3)}
+    .btn:active{transform:translateY(0)}.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+    .code-display{background:var(--bg);padding:16px;border-radius:12px;text-align:center;font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:16px;min-height:56px;display:none;align-items:center;justify-content:center;border:1.5px solid var(--border);letter-spacing:4px;color:var(--accent)}
+    .session-display{background:var(--bg);padding:12px;border-radius:12px;margin-top:16px;border:1.5px solid var(--border);display:none;word-break:break-all;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);max-height:120px;overflow-y:auto}
+    .copy-btn{width:100%;padding:12px;margin-top:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-weight:600;font-family:'Space Grotesk',sans-serif;cursor:pointer;display:none;align-items:center;justify-content:center;gap:8px;color:var(--text);transition:all 0.3s}
+    .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .qr-display{background:var(--bg);padding:28px;border-radius:12px;text-align:center;margin-top:16px;border:1.5px solid var(--border);display:none}
+    .qr-image{max-width:260px;max-height:260px;margin:0 auto;border-radius:12px}
+    .result-box{background:var(--bg);padding:16px;border-radius:12px;margin-top:16px;border:1.5px solid var(--border);display:none;font-size:13px;line-height:1.8}
+    .result-box .pass{color:#00c896}.result-box .fail{color:#ff4757}.result-box .info{color:var(--text-muted)}
+    .loading{display:none;text-align:center;margin:16px 0}
+    .loading i{font-size:24px;color:var(--accent);animation:spin 1s linear infinite}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    .footer{text-align:center;margin-top:24px;font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase}
+    .footer span{color:var(--accent);font-weight:600}
+    @media(max-width:480px){.container{padding:24px 20px}.title{font-size:22px}.tab{font-size:11px;padding:10px 6px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-wrap"><div class="logo-ring"></div><div class="logo"><i class="fas fa-bolt"></i></div></div>
+      <h1 class="title">Mias MDX</h1>
+      <p class="subtitle">Powered by Precious</p>
+      <div class="status-badge"><span class="status-dot"></span>System Online</div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="pair"><i class="fas fa-key"></i> Pair Code</div>
+      <div class="tab" data-tab="qr"><i class="fas fa-qrcode"></i> QR Code</div>
+      <div class="tab" data-tab="validate"><i class="fas fa-shield-halved"></i> Validate</div>
+    </div>
+    <div class="tab-content active" id="tab-pair">
+      <label class="input-label">WhatsApp number with country code</label>
+      <input type="text" id="pairNumber" class="input-field" placeholder="2348012345678"/>
+      <button class="btn" id="pairBtn" onclick="getPairCode()"><i class="fas fa-key"></i> Get Pair Code</button>
+      <div class="loading" id="pairLoading"><i class="fas fa-spinner"></i></div>
+      <div class="code-display" id="pairCode"></div>
+      <div class="session-display" id="pairSession"></div>
+      <button class="copy-btn" id="pairCopy" onclick="copyEl('pairSession')"><i class="fas fa-copy"></i> Copy Session ID</button>
+      <p id="pairMsg" style="margin-top:12px;font-size:12px;color:var(--text-muted);text-align:center"></p>
+    </div>
+    <div class="tab-content" id="tab-qr">
+      <p style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:16px">Open WhatsApp → Linked Devices → Link a Device → Scan</p>
+      <button class="btn" onclick="getQR()"><i class="fas fa-qrcode"></i> Generate QR Code</button>
+      <div class="loading" id="qrLoading"><i class="fas fa-spinner"></i></div>
+      <div class="qr-display" id="qrDisplay"><img class="qr-image" id="qrImage"/></div>
+      <p id="qrMsg" style="margin-top:12px;font-size:12px;color:var(--text-muted);text-align:center"></p>
+    </div>
+    <div class="tab-content" id="tab-validate">
+      <label class="input-label">Paste your SESSION_ID to check</label>
+      <textarea class="input-field" id="validateInput" placeholder="prezzy_eyJub2lzZUtleS..."></textarea>
+      <button class="btn" onclick="validateSession()"><i class="fas fa-shield-halved"></i> Validate Session</button>
+      <div class="loading" id="valLoading"><i class="fas fa-spinner"></i></div>
+      <div class="result-box" id="valResult"></div>
+    </div>
+    <div class="footer">⚡ Powered by <span>𝑷𝑹𝑬𝑪𝑰𝑶𝑼𝑺 x</span> | ©2025 Mias MDX</div>
+  </div>
+  <script>
+    document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById('tab-'+t.dataset.tab).classList.add('active')})});
+    async function getPairCode(){
+      const num=document.getElementById('pairNumber').value.replace(/[^0-9]/g,'');
+      if(!num||num.length<10){document.getElementById('pairMsg').innerHTML='<span style="color:#ff4757">Enter valid number with country code</span>';return}
+      document.getElementById('pairBtn').disabled=true;document.getElementById('pairLoading').style.display='block';
+      document.getElementById('pairCode').style.display='none';document.getElementById('pairSession').style.display='none';document.getElementById('pairCopy').style.display='none';document.getElementById('pairMsg').textContent='';
+      try{const r=await fetch('/pair?number='+num);const d=await r.json();
+        if(d.code){document.getElementById('pairCode').textContent=d.code;document.getElementById('pairCode').style.display='flex';document.getElementById('pairMsg').innerHTML='📱 Open WhatsApp → Linked Devices → Link with phone number → Enter code';if(d.session)showSession(d.session,'pairSession','pairCopy')}
+        else if(d.session){showSession(d.session,'pairSession','pairCopy');document.getElementById('pairMsg').innerHTML='<span style="color:#00c896">✅ Session generated! Also sent to WhatsApp.</span>'}
+        else if(d.error)document.getElementById('pairMsg').innerHTML='<span style="color:#ff4757">❌ '+d.error+'</span>'
+      }catch(e){document.getElementById('pairMsg').innerHTML='<span style="color:#ff4757">❌ Connection error</span>'}
+      document.getElementById('pairBtn').disabled=false;document.getElementById('pairLoading').style.display='none';
+    }
+    async function getQR(){
+      document.getElementById('qrLoading').style.display='block';document.getElementById('qrDisplay').style.display='none';document.getElementById('qrMsg').textContent='';
+      try{const r=await fetch('/qr');const d=await r.json();
+        if(d.qr){document.getElementById('qrImage').src=d.qr;document.getElementById('qrDisplay').style.display='block';document.getElementById('qrMsg').innerHTML='📱 Scan now. Session will be sent to your WhatsApp.'}
+        else if(d.error)document.getElementById('qrMsg').innerHTML='<span style="color:#ff4757">❌ '+d.error+'</span>'
+      }catch(e){document.getElementById('qrMsg').innerHTML='<span style="color:#ff4757">❌ Connection error</span>'}
+      document.getElementById('qrLoading').style.display='none';
+    }
+    async function validateSession(){
+      const s=document.getElementById('validateInput').value.trim();
+      if(!s){document.getElementById('valResult').style.display='block';document.getElementById('valResult').innerHTML='<span class="fail">❌ Paste a session first</span>';return}
+      document.getElementById('valLoading').style.display='block';document.getElementById('valResult').style.display='none';
+      try{const r=await fetch('/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:s})});const d=await r.json();
+        let h='';
+        if(d.valid)h+='<div class="pass" style="font-size:16px;font-weight:700;margin-bottom:12px">✅ Session is VALID!</div>';
+        else h+='<div class="fail" style="font-size:16px;font-weight:700;margin-bottom:12px">❌ Session is INVALID</div>';
+        if(d.phone)h+='<div class="info">📱 Phone: +'+d.phone+'</div>';
+        if(d.score)h+='<div class="info">📊 Score: '+d.score+' checks passed</div>';
+        if(d.checks){h+='<div style="margin-top:10px">';const labels={hasNoiseKey:'Noise Key',hasSignedIdentityKey:'Identity Key',hasSignedPreKey:'Pre Key',hasRegistrationId:'Registration ID',isRegistered:'Registered',hasMe:'Account Info',hasAccount:'Account Data'};for(const[k,v]of Object.entries(d.checks))h+='<div class="'+(v?'pass':'fail')+'">'+(v?'✅':'❌')+' '+(labels[k]||k)+'</div>';h+='</div>'}
+        if(d.message)h+='<div style="margin-top:12px;font-weight:600;color:var(--text)">'+d.message+'</div>';
+        if(d.error)h+='<div class="fail" style="margin-top:8px">'+d.error+'</div>';
+        document.getElementById('valResult').innerHTML=h;document.getElementById('valResult').style.display='block';
+      }catch(e){document.getElementById('valResult').innerHTML='<span class="fail">❌ Error</span>';document.getElementById('valResult').style.display='block'}
+      document.getElementById('valLoading').style.display='none';
+    }
+    function showSession(s,dId,cId){document.getElementById(dId).textContent=s;document.getElementById(dId).style.display='block';document.getElementById(cId).style.display='flex'}
+    function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>{const b=document.getElementById(id==='pairSession'?'pairCopy':'qrCopy');if(b){b.innerHTML='<i class="fas fa-check"></i> Copied!';setTimeout(()=>{b.innerHTML='<i class="fas fa-copy"></i> Copy Session ID'},2000)}})}
+  </script>
+</body>
+</html>
