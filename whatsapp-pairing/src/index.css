@@ -1,4 +1,0 @@
-/* App uses inline styles — no global Tailwind theme needed */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
