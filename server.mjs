@@ -16,6 +16,11 @@ import {
 import pn from "awesome-phonenumber";
 import QRCode from "qrcode";
 
+// Keep the pairing panel quiet: show one online line and preserve errors.
+console.log = () => {};
+console.info = () => {};
+console.warn = () => {};
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -119,7 +124,7 @@ app.get("/pair", async (req, res) => {
         try {
           let code = await sock.requestPairingCode(num);
           code = code?.match(/.{1,4}/g)?.join("-") || code;
-          if (!res.headersSent) { console.log({ num, code }); res.json({ code }); }
+          if (!res.headersSent) res.json({ code });
         } catch (err) {
           console.error("Error requesting pairing code:", err);
           if (!res.headersSent) res.status(503).json({ error: "Failed to get pairing code. Check your number and try again." });
@@ -231,12 +236,12 @@ app.post("/validate", (req, res) => {
 
 // ─── Start ──────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Mias MDX running on port ${PORT}`));
+app.listen(PORT, () => process.stdout.write("MIAS LITE MDX is online\n"));
 
 // ─── Global error handler ───────────────────────────────
 process.on("uncaughtException", (err) => {
   const e = String(err);
   const ignore = ["conflict","not-authorized","Socket connection timeout","rate-overlimit","Connection Closed","Timed Out","Value not found","Stream Errored","statusCode: 515","statusCode: 503"];
   if (ignore.some(i => e.includes(i))) return;
-  console.log("Caught exception:", err);
+  console.error("Caught exception:", err);
 });
